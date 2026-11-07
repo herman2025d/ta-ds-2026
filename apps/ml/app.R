@@ -95,11 +95,23 @@ z_siswa <- function(baris, dijawab, sains) {
 # ------------------------------------------------------------------------------
 # Grafik (fungsi murni agar bisa diuji di luar Shiny)
 # ------------------------------------------------------------------------------
-plot_risiko <- function(p, uji) {
-  uji$aktual <- factor(uji$aktual, levels = names(COL_STATUS))
+# Data uji tersedia hanya sebagai hitungan per interval peluang 0,005 (ketentuan OECD:
+# hasil agregat saja; LOG ML-32). Histogram digabung menjadi interval 0,025.
+hist_uji <- function(ub, lebar = 0.025) {
+  g <- floor(ub$lo / lebar + 1e-9)
+  a <- aggregate(cbind(n_bawah, n_atas) ~ g, data = cbind(ub, g = g), FUN = sum)
+  rbind(data.frame(x = a$g * lebar + lebar / 2, aktual = "Di bawah L2", n = a$n_bawah),
+        data.frame(x = a$g * lebar + lebar / 2, aktual = "L2 ke atas", n = a$n_atas))
+}
+N_UJI      <- sum(E$uji_bin$n_bawah + E$uji_bin$n_atas)
+PROP_BAWAH <- sum(E$uji_bin$n_bawah) / N_UJI
+
+plot_risiko <- function(p, ub) {
+  d <- hist_uji(ub)
+  d$aktual <- factor(d$aktual, levels = names(COL_STATUS))
   kanan <- p > 0.72
-  ggplot(uji, aes(p, fill = aktual)) +
-    geom_histogram(binwidth = 0.025, boundary = 0, colour = COL[["latar"]], linewidth = 0.2) +
+  ggplot(d, aes(x, n, fill = aktual)) +
+    geom_col(width = 0.025, colour = COL[["latar"]], linewidth = 0.2) +
     geom_vline(xintercept = 0.5, linetype = "dashed", colour = COL[["abu_tua"]], linewidth = 0.5) +
     annotate("text", x = 0.5, y = Inf, label = "ambang model 0,5", hjust = -0.06, vjust = 3.4,
              size = TXT_ANOT * 1.15, colour = COL[["abu_tua"]], family = FONT) +
@@ -292,7 +304,7 @@ hal_kalkulator <- nav_panel(
       card(card_header("Posisi siswa di antara siswa data testing"),
            plotOutput("g_risiko", height = 300),
            card_footer(catatan(
-             "Histogram = peluang menurut model ringkas untuk ", fmt_bulat(nrow(E$uji)),
+             "Histogram = peluang menurut model ringkas untuk ", fmt_bulat(N_UJI),
              " siswa testing (dari sekolah yang tidak dipakai melatih model), diwarnai kelas aktualnya. ",
              "ROC AUC model ringkas ", fmt_angka(auc_rk, 3), ". Peluang adalah estimasi, bukan kepastian."))),
       card(card_header("Jawaban yang paling mengubah risiko"),
@@ -395,7 +407,8 @@ hal_tentang <- nav_panel(
            ") dan memilih pendekatan belajar sesuai profil."),
     tags$h6("Data dan metode"),
     tags$ul(
-      tags$li(D$sumber),
+      tags$li(D$sumber, " Sumber data: ", tags$em(D$pengakuan),
+              " Aplikasi hanya memuat hasil agregat dan parameter model, tanpa data perorangan siswa atau sekolah."),
       tags$li("Model lengkap: 52 prediktor tingkat siswa dan sekolah; data dibagi per sekolah (80% latih, 20% uji), ",
               "validasi silang 5-fold per sekolah, empat algoritma dibandingkan dengan baseline."),
       tags$li("Kalkulator: model ringkas 10 pertanyaan. Empat aspek sikap belajar wajib (untuk profil) ditambah ",
@@ -467,18 +480,19 @@ server <- function(input, output, session) {
       title = "Peluang di bawah Level 2", value = fmt_persen(p, 0, 100),
       tags$p(if (berisiko) "Di atas ambang 0,5: ditandai berisiko" else "Di bawah ambang 0,5: tidak ditandai"),
       tags$p(class = "small mb-0", "Siswa tipikal: ", fmt_persen(plogis(LOGIT_DASAR), 0, 100),
-             " (", fmt_persen(mean(E$uji$aktual == "Di bawah L2"), 0, 100),
+             " (", fmt_persen(PROP_BAWAH, 0, 100),
              " siswa testing memang di bawah L2)"),
       theme = value_box_theme(bg = tint(if (berisiko) COL[["koral"]] else COL[["teal"]]), fg = COL[["hitam"]]))
   })
 
   output$vb_kalibrasi <- renderUI({
-    p <- risiko(); u <- E$uji
-    dekat <- abs(u$p - p) <= 0.05; n <- sum(dekat)
+    p <- risiko(); u <- E$uji_bin
+    dekat <- abs((u$lo + u$hi) / 2 - p) <= 0.05
+    n <- sum(u$n_bawah[dekat] + u$n_atas[dekat])
     cukup <- n >= 30
     value_box(
       title = "Bukti dari data testing",
-      value = if (cukup) fmt_persen(mean(u$aktual[dekat] == "Di bawah L2"), 0, 100) else "–",
+      value = if (cukup) fmt_persen(sum(u$n_bawah[dekat]) / n, 0, 100) else "–",
       tags$p(if (cukup) paste0("dari ", fmt_bulat(n), " siswa testing dengan peluang serupa (± 5 poin) ",
                                "memang di bawah L2")
              else "Terlalu sedikit siswa testing dengan peluang serupa (< 30)"),
@@ -495,7 +509,7 @@ server <- function(input, output, session) {
       theme = value_box_theme(bg = tint(COL_P[[i]]), fg = COL[["hitam"]]))
   })
 
-  output$g_risiko <- renderPlot(plot_risiko(risiko(), E$uji), res = 96,
+  output$g_risiko <- renderPlot(plot_risiko(risiko(), E$uji_bin), res = 96,
                                 alt = "Histogram peluang siswa testing dengan posisi siswa ini")
   output$g_kontribusi <- renderPlot(
     plot_kontribusi(kontribusi_logit(jwb()$baris, DASAR, M), LOGIT_DASAR), res = 96,
