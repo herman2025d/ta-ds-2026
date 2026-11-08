@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tugas Akhir Data Sains</title>
+<style>
+  /* Token warna = 00_visual_system.R */
+  :root {
+    --navy: #1B3A5C; --teal: #3D8C8C; --koral: #D1693F; --oker: #C2953A;
+    --hitam: #2B2F33; --abu-tua: #5F6670; --abu: #9AA1AA; --abu-muda: #D5D9DE;
+    --grid: #ECEEF1; --latar: #FFFFFF; --kartu: #FFFFFF;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --hitam: #E8EAED; --abu-tua: #B4BAC2; --abu-muda: #3A4048; --grid: #2A2F36;
+      --latar: #15191E; --kartu: #1C2128; --navy: #8FB3D9; --teal: #6DB8B8; --oker: #D9B467;
+    }
+  }
+  :root[data-theme="dark"] {
+    --hitam: #E8EAED; --abu-tua: #B4BAC2; --abu-muda: #3A4048; --grid: #2A2F36;
+    --latar: #15191E; --kartu: #1C2128; --navy: #8FB3D9; --teal: #6DB8B8; --oker: #D9B467;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--latar); color: var(--hitam);
+    font-family: "Segoe UI", Calibri, Arial, sans-serif; line-height: 1.5;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 16px 32px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .sub { color: var(--abu-tua); margin: 0 0 28px; }
+  .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .kartu {
+    background: var(--kartu); border: 1px solid var(--abu-muda); border-top: 4px solid var(--warna);
+    border-radius: 8px; padding: 18px 18px 16px; display: flex; flex-direction: column;
+  }
+  .label { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--abu-tua); }
+  .kartu h2 { font-size: 1.1rem; margin: 4px 0 8px; }
+  .kartu p { margin: 0 0 16px; color: var(--abu-tua); font-size: .95rem; flex: 1; }
+  .tombol {
+    align-self: flex-start; text-decoration: none; background: var(--navy); color: #FFFFFF;
+    padding: 8px 14px; border-radius: 6px; font-weight: 600; font-size: .9rem;
+  }
+  .tombol:focus-visible { outline: 3px solid var(--oker); outline-offset: 2px; }
+  .segera { color: var(--abu-tua); font-size: .9rem; font-style: italic; }
+  footer { margin-top: 32px; color: var(--abu-tua); font-size: .8rem; border-top: 1px solid var(--grid); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Tugas Akhir Data Sains</h1>
+  <p class="sub">Prototipe tugas akhir mata kuliah AI untuk Educational Data Mining, Machine Learning, dan
+    Visualisasi Data Pendidikan · S3 Penelitian dan Evaluasi Pendidikan, Universitas Negeri Yogyakarta, 2026</p>
+
+  <div class="kisi">
+    <section class="kartu" style="--warna: var(--navy)">
+      <span class="label">Machine Learning</span>
+      <h2>Deteksi Dini Sains · PISA 2025 Indonesia</h2>
+      <p>Kalkulator 10 pertanyaan: peluang siswa berada di bawah Level 2 sains, kedekatan dengan profil
+        belajar, dan rekomendasi pembelajaran berbasis teori.</p>
+      <a class="tombol" href="ml/">Buka aplikasi</a>
+    </section>
+    <section class="kartu" style="--warna: var(--teal)">
+      <span class="label">AI untuk Educational Data Mining</span>
+      <h2>Prioritas Afirmasi Akses Pendidikan · Kab/Kota 2026</h2>
+      <p>Dasbor keputusan berbasis CRISP-DM: kuota anggaran → daftar kabupaten/kota prioritas, aturan pohon
+        keputusan, simulasi, perbandingan dengan sasaran daerah khusus, dan ringkasan kebijakan.</p>
+      <a class="tombol" href="edm/">Buka aplikasi</a>
+    </section>
+    <section class="kartu" style="--warna: var(--oker)">
+      <span class="label">Visualisasi Data Pendidikan</span>
+      <h2>Cerita Partisipasi Pendidikan Antarprovinsi</h2>
+      <p>Visualisasi untuk publik tentang partisipasi pendidikan provinsi dari tahun ke tahun.</p>
+      <span class="segera">Segera tersedia</span>
+    </section>
+  </div>
+
+  <footer>Situs ini tidak dipromosikan dan hanya dibagikan lewat tautan atau QR. Aplikasi berjalan di peramban
+    (shinylive); tidak ada data pengguna yang disimpan. Pembukaan pertama aplikasi dapat memerlukan 20–60 detik.<br>
+    Sumber data aplikasi ML: Programme for International Student Assessment (PISA), Organisation for Economic
+    Co-operation and Development (OECD), Paris. Hanya hasil agregat dan parameter model yang dimuat.<br>
+    Sumber data aplikasi EDM: Badan Pusat Statistik (tabel kabupaten/kota 2025–2026), Kepmendikbudristek
+    160/P/2021, dan data wilayah Kemendagri 2020; rincian judul, tanggal akses, dan tautan ada di tab Tentang aplikasi.</footer>
+</main>
+</body>
+</html>
